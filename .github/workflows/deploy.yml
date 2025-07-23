@@ -1,0 +1,41 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: |
+        npm install -g http-server
+        
+    - name: Test website
+      run: |
+        echo "Testing website structure..."
+        ls -la
+        echo "HTML file exists:"
+        test -f index.html && echo "✅ index.html found" || echo "❌ index.html missing"
+        echo "CSS file exists:"
+        test -f css/style.css && echo "✅ style.css found" || echo "❌ style.css missing"
+        echo "JS file exists:"
+        test -f js/script.js && echo "✅ script.js found" || echo "❌ script.js missing"
+        
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: . 
